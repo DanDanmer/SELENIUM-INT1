@@ -5,55 +5,63 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 public class FirstSeleniumScript {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
+        // Constants for URL and expected titles
+        final String GOOGLE_URL = "https://www.google.com/";
+        final String GOOGLE_TITLE = "Google";
+        final String AMAZON_URL = "https://www.amazon.com/";
+        final String AMAZON_TITLE = "Amazon.com. Spend less. Smile more.";
 
-        String currentUtl;
-        String title;
-
+        // Set up the WebDriver for Chrome
         WebDriverManager.chromedriver().clearDriverCache().setup();
         WebDriver driver = new ChromeDriver();
 
-        driver.manage().window().maximize();
-        driver.get("https://google.com");
+        try {
+            driver.manage().window().maximize();
 
-        currentUtl = driver.getCurrentUrl();
-        System.out.println("currentUtl = " + currentUtl);
+            // Navigate to Google
+            driver.get(GOOGLE_URL);
+            validatePage(driver, GOOGLE_URL, GOOGLE_TITLE, "Google");
 
-        // Page source
-//        String pageSource = driver.getPageSource();
-//        System.out.println("pageSource = " + pageSource);
+            // Navigate to Amazon
+            driver.navigate().to(AMAZON_URL);
+            validatePage(driver, AMAZON_URL, AMAZON_TITLE, "Amazon");
 
-        title = driver.getTitle();
-        System.out.println("title = " + title);
+            // Perform navigation actions
+            driver.navigate().back();
+            driver.navigate().forward();
+            driver.navigate().refresh();
 
-        if(currentUtl.equals("https://www.google.com/") && title.equals("Google")) {
-            System.out.println("A navigation to Google succeeded!");
+            // Validate final Amazon page again
+            validatePage(driver, AMAZON_URL, AMAZON_TITLE, "Amazon");
+
+        } catch (Exception e) {
+            System.out.println("An error occurred: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            driver.quit();  // Ensure browser closes properly
         }
-        else {
-            System.out.println("Oh No! A wrong place");
+    }
+
+    /**
+     * Validates if the current page matches the expected URL and title.
+     *
+     * @param driver       The WebDriver instance
+     * @param expectedUrl  The expected URL
+     * @param expectedTitle The expected title
+     * @param siteName     The name of the site being validated
+     */
+    private static void validatePage(WebDriver driver, String expectedUrl, String expectedTitle, String siteName) {
+        String currentUrl = driver.getCurrentUrl();
+        String title = driver.getTitle();
+
+        System.out.println("Current URL: " + currentUrl);
+        System.out.println("Page Title: " + title);
+
+        if (currentUrl.equalsIgnoreCase(expectedUrl) && title.equalsIgnoreCase(expectedTitle)) {
+            System.out.println("✅ Successfully navigated to " + siteName + "!");
+        } else {
+            System.out.println("❌ Navigation to " + siteName + " failed. Check URL or title.");
         }
-
-        driver.navigate().to("https://www.amazon.com");
-
-
-        title = driver.getTitle();
-        System.out.println("title = " + title);
-
-        driver.navigate().back();
-        driver.navigate().forward();
-        driver.navigate().refresh();
-
-        currentUtl = driver.getCurrentUrl();
-        System.out.println("currentUtl = " + currentUtl);
-
-        if(currentUtl.equals("https://www.amazon.com////") && title.equals("Amazon.com. Spend less. Smile more.")) {
-            System.out.println("A navigation to Amazon succeeded!");
-        }
-        else {
-            System.out.println("Oh No! A wrong place");
-        }
-
-        driver.quit();
-
     }
 }
